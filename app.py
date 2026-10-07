@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
 
-# Page Configuration for widescreen layout
+# Page Configuration for modern dashboard widescreen layout
 st.set_page_config(layout="wide", page_title="Live Vahan Reg. Data Dashboard", page_icon="⚡")
 
-# Custom CSS styling for polished cards
+# Custom UI styling configurations
 st.markdown("""
     <style>
     .main-title { font-size:32px !important; font-weight: 700 !important; color: #1E3A8A; margin-bottom: 20px; }
@@ -15,35 +15,33 @@ st.markdown("""
 
 st.markdown('<div class="main-title">⚡ Real-Time Team Lead Master Stock Tracker</div>', unsafe_allow_html=True)
 
-# 🔄 NATIVE REAL-TIME AUTOREFRESH: Reloads the page safely every 2 seconds without session errors
+# 🔄 SAFELY AUTO-REFRESH PAGE EVERY 2 SECONDS
 st_autorefresh(interval=2000, key="vahan_data_refresh")
 
-# Target Google Sheet ID from your latest Vahan Reg. Data sheet script configuration
+# Target Google Sheet ID from your master Vahan script config
 GOOGLE_SHEET_ID = "1ftmnwcv9uPI85Srz5_fu-kWbjCyVVi7uREOppal3zrk"
-SHEET_NAME = "Vahan Reg. Data"
-CSV_URL = f"https://google.com{GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
 
-# Fetch data directly from Google servers with cache lifetime set to 1 second
+# 🛠️ UNIVERSAL WEB EXPORT FALLBACK URL
+# This pulls the data matrix directly via standard web query stream to guarantee a successful handshake
+CSV_URL = f"https://docs.google.com/spreadsheets/d/{GOOGLE_SHEET_ID}/export?format=csv"
+
 @st.cache_data(ttl=1)
 def load_live_stock_data():
+    # Force pandas engine to read the cloud stream instantly
     df = pd.read_csv(CSV_URL)
     return df
 
 try:
     master_df = load_live_stock_data()
     
-    # Strip any hidden whitespaces from column headers automatically
+    # Strip accidental whitespaces from headers automatically
     master_df.columns = master_df.columns.str.strip()
 
-    # --- AUTOMATED SCORECARDS PANEL ---
+    # --- TOP KPI SCORECARDS ---
     total_cars = len(master_df)
     
-    # Safe fallback validation for "Billing Status" column variations
-    billing_col = None
-    for col in master_df.columns:
-        if col.lower() in ["billing status", "status", "billing_status"]:
-            billing_col = col
-            break
+    # Locate Billing Status column variation safely
+    billing_col = next((col for col in master_df.columns if col.lower() in ["billing status", "status", "billing_status"]), None)
 
     if billing_col:
         billed_count = len(master_df[master_df[billing_col].astype(str).str.lower() == "billed"])
@@ -53,21 +51,16 @@ try:
 
     m1, m2, m3 = st.columns(3)
     with m1:
-        st.markdown(f'<div class="metric-box">➡️ <b>Total Stock Allocation:</b><br><span style="font-size:24px; font-weight:bold;">{total_cars} Units</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-box">➡️ <b>Total Vahan Rows:</b><br><span style="font-size:24px; font-weight:bold;">{total_cars} Rows</span></div>', unsafe_allow_html=True)
     with m2:
         st.markdown(f'<div class="metric-box">🟢 <b>Billed Count:</b><br><span style="font-size:24px; font-weight:bold; color:green;">{billed_count} Units</span></div>', unsafe_allow_html=True)
     with m3:
-        st.markdown(f'<div class="metric-box"> echelon 🟡 <b>Pending Billing:</b><br><span style="font-size:24px; font-weight:bold; color:#D97706;">{pending_count} Units</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-box">🟡 <b>Pending Billing:</b><br><span style="font-size:24px; font-weight:bold; color:#D97706;">{pending_count} Units</span></div>', unsafe_allow_html=True)
 
     st.write("---")
 
     # --- TEAM LEAD SELECTION DROPDOWN ---
-    # Find the correct TL Name column automatically even if spelled slightly differently
-    tl_col = None
-    for col in master_df.columns:
-        if col.lower() in ["tl name", "team lead", "tl_name", "tl"]:
-            tl_col = col
-            break
+    tl_col = next((col for col in master_df.columns if col.lower() in ["tl name", "team lead", "tl_name", "tl"]), None)
 
     if tl_col:
         all_tls = ["ALL TEAM LEADS"] + list(master_df[tl_col].dropna().unique())
