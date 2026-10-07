@@ -18,11 +18,11 @@ st.markdown('<div class="main-title">📊 Live Dealership Master Stock Dashboard
 # 🔄 RUN LIVE PAGE BACKGROUND REFRESH LOOP EVERY 2 SECONDS
 st_autorefresh(interval=2000, key="vahan_master_stock_loop")
 
-# 📍 FRESH UPDATE: NEW TARGET GOOGLE SHEET ID ASSIGNED
+# 📍 ACTIVE TARGET GOOGLE SHEET ID
 GOOGLE_SHEET_ID = "1__GyepUvDrq6F6lJIYfU1EAqYv1TLIpntU2W1284ZAE"
 
-# Direct download file endpoint configuration—bypasses link encoding bugs with spaces
-CSV_URL = f"https://google.com{GOOGLE_SHEET_ID}/export?format=csv&sheet=Group+Stock"
+# 🛡️ THE UNIVERSAL ENDPOINT: Fetches the primary active data tab grid automatically without needing names
+CSV_URL = f"https://google.com{GOOGLE_SHEET_ID}/export?format=csv"
 
 @st.cache_data(ttl=1)
 def fetch_live_cloud_matrix():
@@ -33,7 +33,7 @@ def fetch_live_cloud_matrix():
 try:
     master_df = fetch_live_cloud_matrix()
     
-    # Clean up accidental space anomalies inside headers string arrays
+    # Strip spaces from header strings automatically
     master_df.columns = master_df.columns.str.strip()
 
     # --- AUTOMATED BUSINESS KPI SCORECARDS ---
@@ -79,5 +79,5 @@ try:
     st.dataframe(display_df, use_container_width=True, hide_index=True)
 
 except Exception as error_msg:
-    st.error("📡 Establishing Google Cloud Data Handshake...")
-    st.info("🔄 Reconnecting shortly. Verify the Google Sheet's General Access is set to 'Anyone with the link can view'.")
+    st.error("📡 Connecting to Google Cloud Data Handshake...")
+    st.info("🔄 Reconnecting shortly. Please double-check that your Google Sheet's Share setting is set to 'Anyone with the link can view'.")
