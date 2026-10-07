@@ -16,7 +16,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">📊 Live Dealership Master Stock Dashboard</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">📊 Live Dealership Master Stock</div>', unsafe_allow_html=True)
 
 # 📍 DECODED REAL TARGET SHEET DATA COORDINATES
 GOOGLE_SHEET_ID = "1xA07_7KUH_z9m7eaIRGbT8asNYLlMgOI1N3SgXnaMtw"
