@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 from streamlit_autorefresh import st_autorefresh
 
-# Page Configuration for modern dashboard widescreen layout
-st.set_page_config(layout="wide", page_title="Live Vahan Reg. Data Dashboard", page_icon="⚡")
+# Widescreen browser dashboard configuration
+st.set_page_config(layout="wide", page_title="Live Dealership Master Stock Tracker", page_icon="⚡")
 
 # Custom UI styling configurations
 st.markdown("""
@@ -15,52 +15,51 @@ st.markdown("""
 
 st.markdown('<div class="main-title">⚡ Real-Time Team Lead Master Stock Tracker</div>', unsafe_allow_html=True)
 
-# 🔄 SAFELY AUTO-REFRESH PAGE EVERY 2 SECONDS
-st_autorefresh(interval=2000, key="vahan_data_refresh")
+# 🔄 NATIVE REAL-TIME AUTOREFRESH: Reruns every 2 seconds smoothly without memory glitches
+st_autorefresh(interval=2000, key="group_stock_refresh")
 
-# Target Google Sheet ID from your master Vahan script config
-GOOGLE_SHEET_ID = "1ftmnwcv9uPI85Srz5_fu-kWbjCyVVi7uREOppal3zrk"
+# 📍 CORRECT TARGET SHEET ID DETECTED
+GOOGLE_SHEET_ID = "1xA07_7KUH_z9m7eaIRGbT8asNYLlMgOI1N3SgXnaMtw"
+SHEET_NAME = "Group Stock"
 
-# 🛠️ UNIVERSAL WEB EXPORT FALLBACK URL
-# This pulls the data matrix directly via standard web query stream to guarantee a successful handshake
-CSV_URL = f"https://docs.google.com/spreadsheets/d/{GOOGLE_SHEET_ID}/export?format=csv"
+# Google Visualization API endpoint to query rows cleanly bypassing corporate walls
+CSV_URL = f"https://google.com{GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
 
 @st.cache_data(ttl=1)
 def load_live_stock_data():
-    # Force pandas engine to read the cloud stream instantly
     df = pd.read_csv(CSV_URL)
     return df
 
 try:
     master_df = load_live_stock_data()
     
-    # Strip accidental whitespaces from headers automatically
+    # Strip spaces from header strings automatically
     master_df.columns = master_df.columns.str.strip()
 
     # --- TOP KPI SCORECARDS ---
     total_cars = len(master_df)
     
-    # Locate Billing Status column variation safely
-    billing_col = next((col for col in master_df.columns if col.lower() in ["billing status", "status", "billing_status"]), None)
+    # Locate Vehicle/Billing Status dynamically
+    status_col = next((col for col in master_df.columns if col.lower() in ["vehicle status", "billing status", "status", "booking status"]), None)
 
-    if billing_col:
-        billed_count = len(master_df[master_df[billing_col].astype(str).str.lower() == "billed"])
-        pending_count = len(master_df[master_df[billing_col].astype(str).str.lower() == "pending"])
+    if status_col:
+        billed_count = len(master_df[master_df[status_col].astype(str).str.lower().str.contains("billed|fitmentdone", na=False)])
+        pending_count = len(master_df[master_df[status_col].astype(str).str.lower().str.contains("pending", na=False)])
     else:
         billed_count, pending_count = 0, 0
 
     m1, m2, m3 = st.columns(3)
     with m1:
-        st.markdown(f'<div class="metric-box">➡️ <b>Total Vahan Rows:</b><br><span style="font-size:24px; font-weight:bold;">{total_cars} Rows</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-box">➡️ <b>Total Stock Allocation:</b><br><span style="font-size:24px; font-weight:bold;">{total_cars} Rows</span></div>', unsafe_allow_html=True)
     with m2:
-        st.markdown(f'<div class="metric-box">🟢 <b>Billed Count:</b><br><span style="font-size:24px; font-weight:bold; color:green;">{billed_count} Units</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-box">🟢 <b>Active / Billed Count:</b><br><span style="font-size:24px; font-weight:bold; color:green;">{billed_count} Units</span></div>', unsafe_allow_html=True)
     with m3:
-        st.markdown(f'<div class="metric-box">🟡 <b>Pending Billing:</b><br><span style="font-size:24px; font-weight:bold; color:#D97706;">{pending_count} Units</span></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="metric-box">🟡 <b>Pending Pipeline:</b><br><span style="font-size:24px; font-weight:bold; color:#D97706;">{pending_count} Units</span></div>', unsafe_allow_html=True)
 
     st.write("---")
 
     # --- TEAM LEAD SELECTION DROPDOWN ---
-    tl_col = next((col for col in master_df.columns if col.lower() in ["tl name", "team lead", "tl_name", "tl"]), None)
+    tl_col = next((col for col in master_df.columns if col.lower() in ["tl name", "team lead", "tl_name", "tl", "team lead name"]), None)
 
     if tl_col:
         all_tls = ["ALL TEAM LEADS"] + list(master_df[tl_col].dropna().unique())
@@ -71,7 +70,7 @@ try:
         else:
             filtered_df = master_df
     else:
-        st.warning("⚠️ 'TL Name' column not found in Google Sheet. Displaying raw data master view.")
+        st.warning("⚠️ Team Lead tracking column not found in Google Sheet. Displaying raw data master view.")
         selected_tl = "Master View"
         filtered_df = master_df
 
@@ -81,4 +80,5 @@ try:
 
 except Exception as e:
     st.error("📡 Connecting to Google Cloud Pipeline...")
-    st.info("💡 Ensure your Google Sheet sharing permission is set to 'Anyone with the link can view' so the app can pull rows.")
+    st.info(f"Technical error context: {str(e)}")
+    st.info("💡 Ensure your sheet tab is named exactly 'Group Stock' at the bottom tab options menu.")
