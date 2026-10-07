@@ -18,12 +18,11 @@ st.markdown('<div class="main-title">⚡ Real-Time Team Lead Master Stock Tracke
 # 🔄 NATIVE REAL-TIME AUTOREFRESH: Reruns every 2 seconds smoothly without memory glitches
 st_autorefresh(interval=2000, key="group_stock_refresh")
 
-# 📍 CORRECT TARGET SHEET ID DETECTED
+# 📍 TARGET GOOGLE SHEET DETAILS
 GOOGLE_SHEET_ID = "1xA07_7KUH_z9m7eaIRGbT8asNYLlMgOI1N3SgXnaMtw"
-SHEET_NAME = "Group Stock"
 
-# Google Visualization API endpoint to query rows cleanly bypassing corporate walls
-CSV_URL = f"https://google.com{GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
+# 🔒 FIXED LAYOUT LINE: URL-encoded "Group%20Stock" to safely remove control characters
+CSV_URL = f"https://google.com{GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Group%20Stock"
 
 @st.cache_data(ttl=1)
 def load_live_stock_data():
@@ -59,7 +58,7 @@ try:
     st.write("---")
 
     # --- TEAM LEAD SELECTION DROPDOWN ---
-    tl_col = next((col for col in master_df.columns if col.lower() in ["tl name", "team lead", "tl_name", "tl", "team lead name"]), None)
+    tl_col = next((col for col in master_df.columns if col.lower() in ["tl name", "team lead", "tl_name", "tl", "team lead name", "team lead"]), None)
 
     if tl_col:
         all_tls = ["ALL TEAM LEADS"] + list(master_df[tl_col].dropna().unique())
