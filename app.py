@@ -18,11 +18,12 @@ st.markdown('<div class="main-title">⚡ Real-Time Team Lead Master Stock Tracke
 # 🔄 NATIVE REAL-TIME AUTOREFRESH: Reruns every 2 seconds smoothly without memory glitches
 st_autorefresh(interval=2000, key="group_stock_refresh")
 
-# 📍 TARGET GOOGLE SHEET DETAILS
+# 📍 REAL MASTER GOOGLE SHEET DETAILS
 GOOGLE_SHEET_ID = "1xA07_7KUH_z9m7eaIRGbT8asNYLlMgOI1N3SgXnaMtw"
 
-# 🔒 FIXED LAYOUT LINE: URL-encoded "Group%20Stock" to safely remove control characters
-CSV_URL = f"https://google.com{GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Group%20Stock"
+# 🛡️ THE BULLETPROOF EXPORT URL LAYOUT
+# Bypasses visualization API bugs by requesting a direct spreadsheet file export layer
+CSV_URL = f"https://google.com{GOOGLE_SHEET_ID}/export?format=csv&sheet=Group+Stock"
 
 @st.cache_data(ttl=1)
 def load_live_stock_data():
